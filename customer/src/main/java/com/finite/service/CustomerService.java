@@ -2,10 +2,11 @@ package com.finite.service;
 
 import com.finite.dto.CreateCustomerRequest;
 import com.finite.model.Customer;
+import com.finite.repo.CustomerRepo;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomerService {
+public record CustomerService(CustomerRepo customerRepo) {
 
 	public void createCustomer(CreateCustomerRequest createCustomerRequest) {
 		Customer customer = Customer.builder()
@@ -13,6 +14,6 @@ public class CustomerService {
 				.lastName(createCustomerRequest.getLastName())
 				.build();
 
-		//todo save to db
+		customerRepo.save(customer);
 	}
 }
