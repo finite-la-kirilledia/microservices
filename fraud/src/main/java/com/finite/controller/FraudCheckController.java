@@ -1,6 +1,6 @@
 package com.finite.controller;
 
-import com.finite.dto.FraudCheckResponse;
+import com.finite.fraud.FraudCheckResponse;
 import com.finite.service.FraudCheckService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public record FraudCheckController(FraudCheckService fraudCheckService) {
 
     @GetMapping(path = "{customerId}")
-    public FraudCheckResponse isFraud(@PathVariable int customerId) {
+    public FraudCheckResponse isFraud(@PathVariable("customerId") int customerId) {
         log.info("fraud check request for customer {}", customerId);
         boolean isFraud = fraudCheckService.isFraud(customerId);
         return new FraudCheckResponse(isFraud);
