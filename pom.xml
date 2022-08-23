@@ -16,6 +16,7 @@
         <module>fraud</module>
         <module>eureka</module>
         <module>http-clients</module>
+        <module>notification</module>
     </modules>
 
     <properties>
