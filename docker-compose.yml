@@ -3,6 +3,9 @@ version: "3"
 volumes:
   postgres:
 
+networks:
+  spring:
+
 services:
   postgres:
     image: postgres:13.4-buster
@@ -11,6 +14,8 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: customer
+    networks:
+      - spring
     ports:
       - "9999:5432"
     volumes:
@@ -19,12 +24,86 @@ services:
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
+    networks:
+      - spring
     ports:
       - "9411:9411"
 
   rabbitmq:
     image: rabbitmq:3.9.11-management-alpine
     container_name: rabbitmq
+    networks:
+      - spring
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  eureka:
+    image: kminko/eureka:latest
+    container_name: eureka
+    networks:
+      - spring
+    ports:
+      - "8761:8761"
+    depends_on:
+      - zipkin
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  api-gateway:
+    image: kminko/api-gateway:latest
+    container_name: api-gateway
+    networks:
+      - spring
+    ports:
+      - "8083:8083"
+    depends_on:
+      - zipkin
+      - eureka
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  customer:
+    image: kminko/customer:latest
+    container_name: customer
+    networks:
+      - spring
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - zipkin
+      - eureka
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  fraud:
+    image: kminko/fraud:latest
+    container_name: fraud
+    networks:
+      - spring
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - zipkin
+      - eureka
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  notification:
+    image: kminko/notification:latest
+    container_name: notification
+    networks:
+      - spring
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - zipkin
+      - eureka
+      - rabbitmq
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
